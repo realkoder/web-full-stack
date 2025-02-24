@@ -6,7 +6,7 @@ import GameCard from "./GameCard";
 
 const GameGrid = () => {
   const skeletons = [...Array(20).keys()];
-  const { games, error, isLoading } = useGames();
+  const { data: games, error, isLoading } = useGames();
 
   return (
     <>
