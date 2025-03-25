@@ -7,11 +7,11 @@ import { Store } from "../entities/Store";
 import { ParentPlatform } from "../entities/ParentPlatform";
 
 export const AppDataSource = new DataSource({
-    type: "mysql",
-    url: process.env.DATABASE_URL,
-    synchronize: false, // Set to false in production and use migrations instead
-    logging: false,
-    entities: [Game, Genre, Store, ParentPlatform],
-    migrations: [],
-    subscribers: [],
+  type: "mysql",
+  url: process.env.DATABASE_URL,
+  synchronize: false, // Set to false in production and use migrations instead
+  logging: true,
+  entities: [Game, Genre, Store, ParentPlatform],
+  migrations: [],
+  subscribers: [],
 });

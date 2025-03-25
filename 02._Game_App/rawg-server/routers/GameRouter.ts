@@ -1,10 +1,11 @@
 import { Router } from "express";
 import { Genre } from "../entities/Genre";
-import { AppDataSource } from "../startup/dataSource";
+
 import { Game } from "../entities/Game";
 import { Store } from "../entities/Store";
 import { ParentPlatform } from "../entities/ParentPlatform";
 import { SelectQueryBuilder } from "typeorm";
+import { AppDataSource } from "../startup/dataSource";
 
 //interface for response object matching what our rawg-client expects
 interface ModifinedGame {
@@ -12,6 +13,9 @@ interface ModifinedGame {
   name: string;
   background_image?: string;
   metacritic?: number;
+  rating?: number;
+  released?: string;
+  added?: number;
   parent_platforms: { platform: ParentPlatform }[];
   genres: Genre[];
   stores: Store[];
@@ -79,6 +83,42 @@ const addParentPlatformFilter = (
   }
 };
 
+const addOrdering = (
+  queryBuilder: SelectQueryBuilder<Game>,
+  ordering: string | undefined
+) => {
+  if (ordering === "") {
+    //simulating relevance calculation
+    queryBuilder.orderBy("game.rating", "DESC");
+  }
+  if (ordering === "-rating") {
+    queryBuilder.orderBy("game.rating", "DESC");
+  }
+  if (ordering === "-released") {
+    queryBuilder.orderBy("game.released", "DESC");
+  }
+  if (ordering === "-added") {
+    queryBuilder.orderBy("game.added", "DESC");
+  }
+  if (ordering === "name") {
+    queryBuilder.orderBy("game.name", "ASC");
+  }
+  if (ordering === "-metacritic") {
+    queryBuilder.orderBy("game.metacritic", "DESC");
+  }
+};
+
+const addSearch = (
+  QueryBuilder: SelectQueryBuilder<Game>,
+  search: string | undefined
+) => {
+  if (search) {
+    QueryBuilder.andWhere("LOWER(game.name) LIKE :search", {
+      search: `%${search}%`,
+    });
+  }
+};
+
 function modifyGameResponse(games: Game[]) {
   return games.map((game) => ({
     ...game,
@@ -94,6 +134,8 @@ gameRouter.get("/", async (req, res) => {
   const parentPlatformId = req.query.parent_platforms
     ? Number(req.query.parent_platforms)
     : undefined;
+  const ordering = req.query.ordering ? String(req.query.ordering) : undefined;
+  const search = req.query.search ? String(req.query.search) : undefined;
 
   //query builder to get all games with their genres, parent_platforms, and stores
   const queryBuilder = gameRepository
@@ -105,6 +147,8 @@ gameRouter.get("/", async (req, res) => {
   addGenreFilter(queryBuilder, genreSlug);
   addStoreFilter(queryBuilder, storeId);
   addParentPlatformFilter(queryBuilder, parentPlatformId);
+  addOrdering(queryBuilder, ordering);
+  addSearch(queryBuilder, search);
 
   const games = await queryBuilder.getMany(); //execute query
 

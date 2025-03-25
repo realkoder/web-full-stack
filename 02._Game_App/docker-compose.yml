@@ -32,7 +32,7 @@ services:
       context: ./rawg-server
       dockerfile: Dockerfile
     depends_on:
-      - mysql
+      - seeder
     environment:
       DATABASE_URL: mysql://root:rootpassword@mysql:3306/rawgDatabase
     ports:
