@@ -6,7 +6,9 @@ import { Genre } from "./entities/Genre";
 import { Store } from "./entities/Store";
 import { ParentPlatform } from "./entities/ParentPlatform";
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.MYSQL_URL;
+
+console.log("IMPORTANT", connectionString);
 
 export const AppDataSource = new DataSource({
   type: "mysql",
